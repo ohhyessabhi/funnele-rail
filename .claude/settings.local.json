@@ -20,7 +20,14 @@
       "Bash(echo \"git: $\\(command -v git || echo MISSING\\)\")",
       "Bash(git --version)",
       "Bash(command -v gh)",
-      "Bash(echo \"gh: $\\(command -v gh || echo MISSING\\)\")"
+      "Bash(echo \"gh: $\\(command -v gh || echo MISSING\\)\")",
+      "mcp__claude-in-chrome__list_connected_browsers",
+      "mcp__claude-in-chrome__select_browser",
+      "mcp__claude-in-chrome__tabs_context_mcp",
+      "mcp__claude-in-chrome__navigate",
+      "mcp__claude-in-chrome__computer",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
