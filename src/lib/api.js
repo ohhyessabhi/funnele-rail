@@ -119,27 +119,6 @@ export async function createProject(name) {
   return data;
 }
 
-// ---------------- Members ----------------
-
-export async function createMember(name, role, email) {
-  ensureClient();
-  const { user } = store();
-  const { data, error } = await supabase
-    .from("members")
-    .insert({
-      org_id: user?.org_id,
-      name: name.trim(),
-      role,
-      email: email.trim().toLowerCase(),
-      status: "Active",
-    })
-    .select()
-    .single();
-  if (error) throw error;
-  store().setMembers([...store().members, data]);
-  return data;
-}
-
 // ---------------- Inbox ----------------
 
 export async function acceptInboxItem(inboxId, projectId) {

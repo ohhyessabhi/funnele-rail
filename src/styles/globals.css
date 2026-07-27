@@ -210,6 +210,41 @@ body {
   font-weight: 700;
   flex: 0 0 28px;
 }
+.whoami .nm {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 140px;
+}
+.hamburger-btn {
+  display: none;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--ink);
+  transition: all 0.24s;
+}
+.hamburger-btn:hover {
+  background: var(--paper);
+}
+.search-icon-btn {
+  display: none;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  color: var(--muted);
+}
 .search {
   flex: 1;
   max-width: 360px;
@@ -505,6 +540,28 @@ body {
 }
 .spacer {
   flex: 1;
+}
+.seg {
+  display: flex;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--paper);
+}
+.seg button {
+  padding: 6px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--muted);
+  font-weight: 600;
+  transition: all 0.24s;
+}
+.seg button:hover {
+  background: var(--surface);
+}
+.seg button.on {
+  background: var(--surface);
+  color: var(--accent);
 }
 .scroll {
   flex: 1;
@@ -1213,6 +1270,7 @@ body {
   margin-bottom: 6px;
 }
 .modal-b input,
+.modal-b select,
 .modal-b textarea {
   width: 100%;
   border: 1px solid var(--line);
@@ -1222,6 +1280,7 @@ body {
   background: var(--surface);
 }
 .modal-b input:focus,
+.modal-b select:focus,
 .modal-b textarea:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-light);
@@ -1266,18 +1325,92 @@ body {
   .sidebar {
     display: none;
   }
+  .sidebar.mobile-open {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    max-width: 85vw;
+    z-index: 60;
+    box-shadow: 8px 0 24px rgba(0, 0, 0, 0.18);
+  }
+  .sidebar-signout {
+    display: block;
+  }
   .dash-grid {
     grid-template-columns: 1fr;
-  }
-  .search {
-    max-width: none;
   }
   .drawer {
     width: 100%;
   }
   .topbar {
-    padding: 0 18px;
+    padding: 0 14px;
+    gap: 10px;
   }
+  .hamburger-btn {
+    display: flex;
+  }
+  .search {
+    display: none;
+  }
+  .search-icon-btn {
+    display: flex;
+  }
+  .whoami {
+    padding: 5px 8px 5px 5px;
+    gap: 6px;
+  }
+  .whoami .nm {
+    max-width: 100px;
+  }
+  .right {
+    gap: 6px;
+  }
+  .hide-mobile {
+    display: none;
+  }
+}
+
+/* Narrow phones: the name label no longer fits alongside every topbar
+   action, so drop it and keep just the avatar (their name is one tap away
+   in the sidebar overlay anyway). */
+@media (max-width: 480px) {
+  .whoami .nm {
+    display: none;
+  }
+  .whoami {
+    padding: 0;
+    border: none;
+    background: none;
+    box-shadow: none;
+  }
+  .topbar {
+    gap: 8px;
+    padding: 0 12px;
+  }
+  .btn.btn-primary.btn-sm {
+    padding: 8px 10px;
+  }
+}
+
+.sidebar-signout {
+  display: none;
+  margin: 10px 18px 4px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+.sidebar-signout:hover {
+  color: var(--alert);
+  border-color: var(--alert);
 }
 @media (prefers-reduced-motion: reduce) {
   .drawer {

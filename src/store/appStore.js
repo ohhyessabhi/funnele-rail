@@ -27,7 +27,8 @@ export const useAppStore = create(
         currentProjectId: null,
         selectedTaskId: null,
         paletteOpen: false,
-        filters: { open: false, urgent: false, overdue: false },
+        mobileNavOpen: false,
+        statusFilters: [], // empty = show every status
         searchQuery: "",
         toast: null,
 
@@ -102,8 +103,13 @@ export const useAppStore = create(
           }),
         setSelectedTask: (taskId) => set({ selectedTaskId: taskId || null }),
         setPaletteOpen: (open) => set({ paletteOpen: open }),
-        toggleFilter: (name) =>
-          set((s) => ({ filters: { ...s.filters, [name]: !s.filters[name] } })),
+        setMobileNavOpen: (open) => set({ mobileNavOpen: open }),
+        toggleStatusFilter: (status) =>
+          set((s) => ({
+            statusFilters: s.statusFilters.includes(status)
+              ? s.statusFilters.filter((x) => x !== status)
+              : [...s.statusFilters, status],
+          })),
         setSearchQuery: (q) => set({ searchQuery: q }),
         showToast: (message, isError = false) => {
           set({ toast: { message, isError } });
@@ -121,7 +127,6 @@ export const useAppStore = create(
       {
         name: "funnele-pm-store",
         partialize: (state) => ({
-          filters: state.filters,
           currentView: state.currentView,
         }),
       }

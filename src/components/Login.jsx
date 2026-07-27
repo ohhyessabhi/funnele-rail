@@ -3,6 +3,10 @@ import { ROLES } from "../lib/constants";
 import { isSupabaseConfigured } from "../lib/supabase";
 import { useAuth } from "../hooks/useAuth";
 
+// An invite link (?org=<uuid>) drops the visitor straight into "join this
+// organization" sign-up instead of making them paste a raw org id.
+const invitedOrgId = new URLSearchParams(window.location.search).get("org");
+
 /**
  * Real Supabase Auth login. Two modes:
  *  - Sign in (email + password)
@@ -11,7 +15,7 @@ import { useAuth } from "../hooks/useAuth";
  */
 export function Login() {
   const { login, signup } = useAuth();
-  const [mode, setMode] = useState("signin");
+  const [mode, setMode] = useState(invitedOrgId ? "signup" : "signin");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -20,8 +24,8 @@ export function Login() {
   const [name, setName] = useState("");
   const [role, setRole] = useState("PM");
   const [orgName, setOrgName] = useState("");
-  const [orgId, setOrgId] = useState("");
-  const [newOrg, setNewOrg] = useState(true);
+  const [orgId, setOrgId] = useState(invitedOrgId || "");
+  const [newOrg, setNewOrg] = useState(!invitedOrgId);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -99,7 +103,22 @@ export function Login() {
             required
           />
 
-          {mode === "signup" && (
+          {mode === "signup" && invitedOrgId && (
+            <div
+              style={{
+                fontSize: 13,
+                color: "var(--muted)",
+                background: "var(--paper)",
+                border: "1px solid var(--line)",
+                borderRadius: 8,
+                padding: "8px 12px",
+              }}
+            >
+              You’re joining your team’s existing organization.
+            </div>
+          )}
+
+          {mode === "signup" && !invitedOrgId && (
             <>
               <label>Organization</label>
               <select
@@ -118,23 +137,24 @@ export function Login() {
                   required
                 />
               ) : (
-                <>
-                  <input
-                    value={orgId}
-                    onChange={(e) => setOrgId(e.target.value)}
-                    placeholder="Organization ID (from your admin)"
-                    required
-                  />
-                  <select value={role} onChange={(e) => setRole(e.target.value)}>
-                    {ROLES.filter((r) => r !== "Admin").map((r) => (
-                      <option key={r} value={r}>
-                        {r}
-                      </option>
-                    ))}
-                  </select>
-                </>
+                <input
+                  value={orgId}
+                  onChange={(e) => setOrgId(e.target.value)}
+                  placeholder="Organization ID (from your admin)"
+                  required
+                />
               )}
             </>
+          )}
+
+          {mode === "signup" && !newOrg && (
+            <select value={role} onChange={(e) => setRole(e.target.value)}>
+              {ROLES.filter((r) => r !== "Admin").map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
           )}
 
           {error && <div className="login-error">{error}</div>}

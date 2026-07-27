@@ -5,7 +5,7 @@ import { useMembers } from "./hooks/useMembers";
 import { useProjects } from "./hooks/useProjects";
 import { useInbox } from "./hooks/useInbox";
 import useAppStore from "./store/appStore";
-import { ROLE_SHORT } from "./lib/constants";
+import { ROLE_SHORT, STATUSES, STATUS_SHORT } from "./lib/constants";
 
 import { Login } from "./components/Login";
 import { Topbar } from "./components/Topbar";
@@ -32,8 +32,14 @@ const VIEW_TITLES = {
 };
 
 function ViewHead() {
-  const { currentView, currentProjectId, isAdmin, user, filters, toggleFilter } =
-    useAppStore();
+  const {
+    currentView,
+    currentProjectId,
+    isAdmin,
+    user,
+    statusFilters,
+    toggleStatusFilter,
+  } = useAppStore();
   const projectName = useAppStore((s) => s.projectName);
 
   const title =
@@ -43,7 +49,7 @@ function ViewHead() {
   const roleLabel = user ? " · " + (ROLE_SHORT[user.role] || user.role) : "";
   const sub = (isAdmin ? "Full visibility" : "Your work only") + roleLabel;
 
-  // Filter chips only make sense on task-list views.
+  // Status filter chips only make sense on task-list views.
   const showFilters = ["my-work", "all-tasks", "project", "dash"].includes(
     currentView
   );
@@ -54,24 +60,15 @@ function ViewHead() {
       <div className="sub">{sub}</div>
       {showFilters && (
         <div className="toolrow">
-          <button
-            className={`chip ${filters.open ? "on" : ""}`}
-            onClick={() => toggleFilter("open")}
-          >
-            Open only
-          </button>
-          <button
-            className={`chip ${filters.urgent ? "on" : ""}`}
-            onClick={() => toggleFilter("urgent")}
-          >
-            Urgent
-          </button>
-          <button
-            className={`chip ${filters.overdue ? "on" : ""}`}
-            onClick={() => toggleFilter("overdue")}
-          >
-            Overdue
-          </button>
+          {STATUSES.map((s) => (
+            <button
+              key={s}
+              className={`chip ${statusFilters.includes(s) ? "on" : ""}`}
+              onClick={() => toggleStatusFilter(s)}
+            >
+              {STATUS_SHORT[s]}
+            </button>
+          ))}
         </div>
       )}
     </div>
@@ -119,8 +116,10 @@ export default function App() {
         setPaletteOpen(!useAppStore.getState().paletteOpen);
       }
       if (e.key === "Escape") {
-        if (useAppStore.getState().paletteOpen) setPaletteOpen(false);
-        else if (useAppStore.getState().selectedTaskId) setSelectedTask(null);
+        const s = useAppStore.getState();
+        if (s.paletteOpen) setPaletteOpen(false);
+        else if (s.selectedTaskId) setSelectedTask(null);
+        else if (s.mobileNavOpen) s.setMobileNavOpen(false);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -142,7 +141,7 @@ export default function App() {
     <>
       <Topbar user={user} onLogout={logout} />
       <div className="body">
-        <Sidebar />
+        <Sidebar onLogout={logout} />
         <main className="main">
           <ViewHead />
           <div className="scroll">

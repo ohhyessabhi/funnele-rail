@@ -1,7 +1,5 @@
 import { useMemo } from "react";
 import useAppStore from "../store/appStore";
-import { CLOSED_STATUSES } from "../lib/constants";
-import { daysTo } from "../lib/utils";
 
 /**
  * Computes the visible task list for the current view + filters.
@@ -14,7 +12,7 @@ export function useVisibleTasks() {
   const tasks = useAppStore((s) => s.tasks);
   const currentView = useAppStore((s) => s.currentView);
   const currentProjectId = useAppStore((s) => s.currentProjectId);
-  const filters = useAppStore((s) => s.filters);
+  const statusFilters = useAppStore((s) => s.statusFilters);
   const searchQuery = useAppStore((s) => s.searchQuery);
   const user = useAppStore((s) => s.user);
   const isAdmin = useAppStore((s) => s.isAdmin);
@@ -30,17 +28,8 @@ export function useVisibleTasks() {
       visible = visible.filter((t) => t.assignee_id === user?.id);
     }
 
-    if (filters.open) {
-      visible = visible.filter((t) => !CLOSED_STATUSES.includes(t.status));
-    }
-    if (filters.urgent) {
-      visible = visible.filter((t) => t.priority === "Urgent");
-    }
-    if (filters.overdue) {
-      visible = visible.filter((t) => {
-        const d = daysTo(t.due_date);
-        return d !== null && d < 0;
-      });
+    if (statusFilters.length) {
+      visible = visible.filter((t) => statusFilters.includes(t.status));
     }
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -55,7 +44,7 @@ export function useVisibleTasks() {
     tasks,
     currentView,
     currentProjectId,
-    filters,
+    statusFilters,
     searchQuery,
     user,
     isAdmin,

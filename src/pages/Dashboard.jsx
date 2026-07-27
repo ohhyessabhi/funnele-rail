@@ -24,7 +24,6 @@ export function Dashboard() {
   const memberName = useAppStore((s) => s.memberName);
   const setView = useAppStore((s) => s.setView);
   const setSelectedTask = useAppStore((s) => s.setSelectedTask);
-  const toggleFilter = useAppStore((s) => s.toggleFilter);
 
   // Non-admins get their own work as the dashboard.
   if (!isAdmin) return <MyWork />;
@@ -34,15 +33,10 @@ export function Dashboard() {
   const overdue = open.filter(isOverdue).length;
   const stale = tasks.filter(isStale).length;
 
-  const goFiltered = (filter) => {
-    setView("all-tasks");
-    if (filter) toggleFilter(filter);
-  };
-
   const stats = [
     { n: open.length, l: "Open", onClick: () => setView("all-tasks") },
-    { n: urgent, l: "Urgent", alert: urgent > 0, onClick: () => goFiltered("urgent") },
-    { n: overdue, l: "Overdue", alert: overdue > 0, onClick: () => goFiltered("overdue") },
+    { n: urgent, l: "Urgent", alert: urgent > 0, onClick: () => setView("all-tasks") },
+    { n: overdue, l: "Overdue", alert: overdue > 0, onClick: () => setView("all-tasks") },
     { n: stale, l: "Stale", alert: stale > 0, onClick: () => setView("all-tasks") },
   ];
 

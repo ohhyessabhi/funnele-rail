@@ -6,6 +6,7 @@ import { updateTask, deleteTask } from "../lib/api";
 import { useComments } from "../hooks/useComments";
 import { useWorkLog } from "../hooks/useWorkLog";
 import { StatusModal } from "./StatusModal";
+import { ConfirmModal } from "./ConfirmModal";
 
 const fmtH = (mins) => (mins / 60).toFixed(2).replace(/\.?0+$/, "");
 
@@ -25,6 +26,8 @@ export function Drawer() {
   const [notes, setNotes] = useState("");
   const [commentBody, setCommentBody] = useState("");
   const [pendingStatus, setPendingStatus] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const titleRef = useRef(null);
 
   const { comments, addComment } = useComments(task?.id);
@@ -60,12 +63,15 @@ export function Drawer() {
   const close = () => setSelectedTask(null);
 
   const handleDelete = async () => {
-    if (!window.confirm("Delete this task?")) return;
+    setDeleting(true);
     try {
       await deleteTask(task.id);
+      setConfirmDelete(false);
       close();
     } catch (e) {
       showToast(e.message, true);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -87,7 +93,7 @@ export function Drawer() {
           <div className="drawer-h">
             <span className="id">{task.id.slice(0, 8).toUpperCase()}</span>
             {isAdmin && (
-              <button className="danger" onClick={handleDelete}>
+              <button className="danger" onClick={() => setConfirmDelete(true)}>
                 Delete
               </button>
             )}
@@ -277,6 +283,17 @@ export function Drawer() {
         newStatus={pendingStatus}
         onClose={() => setPendingStatus(null)}
         onSaved={refetchWorkLog}
+      />
+    )}
+    {task && confirmDelete && (
+      <ConfirmModal
+        title="Delete this task?"
+        body="This can’t be undone. Comments, time logs, and reports on this task will be deleted too."
+        confirmLabel="Delete"
+        danger
+        busy={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(false)}
       />
     )}
     </>
