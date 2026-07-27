@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(unzip -l \"/Users/abhi/Downloads/files.zip\")",
+      "Bash(unzip -o \"/Users/abhi/Downloads/files.zip\" -d .)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Read(//opt/homebrew/bin/**)",
+      "Bash(command -v nvm)",
+      "Read(//Users/abhi/**)",
+      "Read(//Users/abhi/.nvm/versions/**)",
+      "Bash(ls /opt/homebrew/bin/node /usr/local/bin/node 2>/dev/null; find ~/.nvm ~/.volta ~/.asdf ~/Library -maxdepth 4 -name node -type f 2>/dev/null | head; echo \"PATH=$PATH\")",
+      "Bash(mkdir -p docs)",
+      "Bash(mv 00-START_HERE.md 01-ARCHITECTURE.md 02-TYPES.ts 03-CONSTANTS_STORE.js 04-COMPONENT_SPECS.md 05-HOOKS_API.js 06-INTEGRATIONS.md 07-BUILD_CHECKLIST.md 08-CLAUDE_CODE_REFERENCE.md DELIVERABLES_SUMMARY.md TESTING_CHECKLIST.md TESTING_PRIORITY_MATRIX.md TESTING_QUICK_START.md funnele-pm-final.html docs/)",
+      "Read(//opt/homebrew/**)",
+      "Read(//opt/**)",
+      "Bash(ls -la /pkg/env/global/bin 2>/dev/null | head -40; echo \"=== homebrew bin node? ===\"; ls /opt/homebrew/bin 2>/dev/null | grep -iE 'node|npm|npx|pnpm|yarn|bun|vite'; echo \"=== usr local bin ===\"; ls /usr/local/bin 2>/dev/null | grep -iE 'node|npm|npx|pnpm|yarn|bun')",
+      "Bash(zsh -lic 'which node npm; node -v; npm -v')",
+      "Bash(command -v git)",
+      "Bash(echo \"git: $\\(command -v git || echo MISSING\\)\")",
+      "Bash(git --version)",
+      "Bash(command -v gh)",
+      "Bash(echo \"gh: $\\(command -v gh || echo MISSING\\)\")"
+    ]
+  }
+}
