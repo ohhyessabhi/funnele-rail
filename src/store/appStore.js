@@ -47,6 +47,9 @@ export const useAppStore = create(
             inbox: [],
             currentView: "dash",
             selectedTaskId: null,
+            paletteOpen: false,
+            mobileNavOpen: false,
+            statusFilters: [],
           }),
 
         // ---- Data setters ----

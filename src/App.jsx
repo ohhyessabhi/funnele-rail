@@ -126,6 +126,19 @@ export default function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, [setPaletteOpen, setSelectedTask]);
 
+  // The mobile sidebar overlay is meaningless above the mobile breakpoint —
+  // close it on resize so it can't get stuck open (e.g. after a logout that
+  // happened while it was open, or rotating a tablet).
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth > 920 && useAppStore.getState().mobileNavOpen) {
+        useAppStore.getState().setMobileNavOpen(false);
+      }
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   if (loading) {
     return (
       <div className="login-screen">
