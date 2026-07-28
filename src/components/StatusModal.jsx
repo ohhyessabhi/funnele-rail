@@ -10,19 +10,20 @@ import { updateTask, addTimeLog, addDeliverable } from "../lib/api";
  */
 export function StatusModal({ task, newStatus, onClose, onSaved }) {
   const showToast = useAppStore((s) => s.showToast);
-  const [hours, setHours] = useState("");
+  const [minutes, setMinutes] = useState("");
   const [url, setUrl] = useState("");
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const bump = (h) => setHours((v) => String(Math.round(((parseFloat(v) || 0) + h) * 100) / 100));
+  const bump = (m) =>
+    setMinutes((v) => String(Math.round((parseFloat(v) || 0) + m)));
 
   const save = async () => {
     setBusy(true);
     try {
       await updateTask(task.id, { status: newStatus });
-      const minutes = Math.round((parseFloat(hours) || 0) * 60);
-      if (minutes > 0) await addTimeLog(task.id, minutes);
+      const mins = Math.round(parseFloat(minutes) || 0);
+      if (mins > 0) await addTimeLog(task.id, mins);
       if (url.trim() || note.trim())
         await addDeliverable(task.id, url.trim(), note.trim());
       onSaved?.();
@@ -45,25 +46,20 @@ export function StatusModal({ task, newStatus, onClose, onSaved }) {
         </div>
         <div className="modal-b">
           <div className="fl">
-            <label>Time spent (hours)</label>
+            <label>Time spent (minutes)</label>
             <input
               type="number"
               min="0"
-              step="0.25"
-              value={hours}
-              onChange={(e) => setHours(e.target.value)}
-              placeholder="e.g. 1.5"
+              step="5"
+              value={minutes}
+              onChange={(e) => setMinutes(e.target.value)}
+              placeholder="e.g. 90"
               autoFocus
             />
             <div className="hours-row">
-              {[
-                ["+30m", 0.5],
-                ["+1h", 1],
-                ["+2h", 2],
-                ["+4h", 4],
-              ].map(([label, h]) => (
-                <span key={label} className="hours-chip" onClick={() => bump(h)}>
-                  {label}
+              {[15, 30, 60, 120].map((m) => (
+                <span key={m} className="hours-chip" onClick={() => bump(m)}>
+                  +{m}m
                 </span>
               ))}
             </div>

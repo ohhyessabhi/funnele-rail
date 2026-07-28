@@ -21,8 +21,6 @@ function rangeDates(days) {
   return { start: toISODate(start), end: toISODate(end) };
 }
 
-const fmtH = (mins) => (mins / 60).toFixed(1).replace(/\.0$/, "");
-
 export function Hours() {
   const members = useAppStore((s) => s.members);
   const projectName = useAppStore((s) => s.projectName);
@@ -72,7 +70,7 @@ export function Hours() {
 
       <div className="dash-card" style={{ marginBottom: 20 }}>
         <div className="dash-h">
-          Total logged <span className="c">{fmtH(totalMinutes)}h</span>
+          Total logged <span className="c">{totalMinutes}m</span>
         </div>
         {loading ? (
           <div className="wl-empty">Loading…</div>
@@ -95,7 +93,7 @@ export function Hours() {
                   <span className="wl-rl">
                     {ROLE_SHORT[member.role] || member.role}
                   </span>
-                  <span className="wl-n">{fmtH(minutes)}h</span>
+                  <span className="wl-n">{minutes}m</span>
                 </div>
                 <div className="wl-bar">
                   <span
@@ -129,7 +127,7 @@ export function Hours() {
               </div>
               <span className="due">{shortDate(l.logged_at)}</span>
               <span className="wl-n" style={{ minWidth: 40, textAlign: "right" }}>
-                {fmtH(l.minutes)}h
+                {l.minutes}m
               </span>
             </div>
           ))}

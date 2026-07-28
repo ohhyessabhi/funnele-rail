@@ -8,13 +8,13 @@ import { useWorkLog } from "../hooks/useWorkLog";
 import { StatusModal } from "./StatusModal";
 import { ConfirmModal } from "./ConfirmModal";
 
-const fmtH = (mins) => (mins / 60).toFixed(2).replace(/\.?0+$/, "");
 
 export function Drawer() {
   const task = useAppStore((s) =>
     s.tasks.find((t) => t.id === s.selectedTaskId)
   );
   const isAdmin = useAppStore((s) => s.isAdmin);
+  const user = useAppStore((s) => s.user);
   const projects = useAppStore((s) => s.projects);
   const members = useAppStore((s) => s.members);
   const memberName = useAppStore((s) => s.memberName);
@@ -147,7 +147,7 @@ export function Drawer() {
                 ))}
               </select>
 
-              {isAdmin && (
+              {(isAdmin || task.assignee_id === user?.id) && (
                 <>
                   <label>Owner</label>
                   <select
@@ -156,7 +156,7 @@ export function Drawer() {
                       save({ assignee_id: e.target.value || null })
                     }
                   >
-                    <option value="">Unassigned</option>
+                    {isAdmin && <option value="">Unassigned</option>}
                     {members.map((m) => (
                       <option key={m.id} value={m.id}>
                         {m.name}
@@ -200,7 +200,7 @@ export function Drawer() {
               <div className="sec-h">
                 Work log{" "}
                 <span className="r">
-                  {totalMinutes ? `${fmtH(totalMinutes)}h` : ""}
+                  {totalMinutes ? `${totalMinutes}m` : ""}
                 </span>
               </div>
               {!logs.length && !deliverables.length && (
@@ -213,7 +213,7 @@ export function Drawer() {
                   <div className="h">
                     <span className="who">{memberName(l.member_id)}</span>
                     <span className="when">
-                      {shortDate(l.logged_at)} · {fmtH(l.minutes)}h
+                      {shortDate(l.logged_at)} · {l.minutes}m
                     </span>
                   </div>
                 </div>
