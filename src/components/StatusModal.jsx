@@ -1,19 +1,29 @@
 import { useState } from "react";
 import useAppStore from "../store/appStore";
 import { updateTask, addTimeLog, addDeliverable } from "../lib/api";
+import { findPM } from "../lib/utils";
 
 /**
  * Prompt shown on every status change: log time spent + attach a report
  * (link + note). Confirming applies the status change and writes the work log;
  * cancelling reverts (the drawer's <select> is controlled by the task's real
  * status, so nothing changes on cancel).
+ *
+ * Moving a task to Client Review also auto-reassigns it to the org's PM —
+ * part of the Backlog -> Ready -> In Progress -> Client Review -> Approved
+ * workflow, so the PM doesn't have to be handed off to manually.
  */
 export function StatusModal({ task, newStatus, onClose, onSaved }) {
   const showToast = useAppStore((s) => s.showToast);
+  const members = useAppStore((s) => s.members);
   const [minutes, setMinutes] = useState("");
   const [url, setUrl] = useState("");
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
+
+  const pm = findPM(members);
+  const willHandOffToPM =
+    newStatus === "Client Review" && pm && pm.id !== task.assignee_id;
 
   const bump = (m) =>
     setMinutes((v) => String(Math.round((parseFloat(v) || 0) + m)));
@@ -21,7 +31,9 @@ export function StatusModal({ task, newStatus, onClose, onSaved }) {
   const save = async () => {
     setBusy(true);
     try {
-      await updateTask(task.id, { status: newStatus });
+      const patch = { status: newStatus };
+      if (willHandOffToPM) patch.assignee_id = pm.id;
+      await updateTask(task.id, patch);
       const mins = Math.round(parseFloat(minutes) || 0);
       if (mins > 0) await addTimeLog(task.id, mins);
       if (url.trim() || note.trim())
@@ -45,6 +57,20 @@ export function StatusModal({ task, newStatus, onClose, onSaved }) {
           </h3>
         </div>
         <div className="modal-b">
+          {willHandOffToPM && (
+            <div
+              style={{
+                fontSize: 12,
+                color: "var(--accent-dark)",
+                background: "var(--accent-light)",
+                borderRadius: 6,
+                padding: "8px 10px",
+                marginBottom: 14,
+              }}
+            >
+              This will also reassign the task to {pm.name} (PM) for review.
+            </div>
+          )}
           <div className="fl">
             <label>Time spent (minutes)</label>
             <input

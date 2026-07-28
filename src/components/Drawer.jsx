@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import useAppStore from "../store/appStore";
 import { STATUSES, PRIORITIES } from "../lib/constants";
-import { commentTime, shortDate } from "../lib/utils";
+import { commentTime, shortDate, findPM } from "../lib/utils";
 import { updateTask, deleteTask } from "../lib/api";
 import { useComments } from "../hooks/useComments";
 import { useWorkLog } from "../hooks/useWorkLog";
 import { StatusModal } from "./StatusModal";
 import { ConfirmModal } from "./ConfirmModal";
+import { SendToPMModal } from "./SendToPMModal";
 
 
 export function Drawer() {
@@ -28,11 +29,20 @@ export function Drawer() {
   const [pendingStatus, setPendingStatus] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showSendToPM, setShowSendToPM] = useState(false);
   const titleRef = useRef(null);
 
   const { comments, addComment } = useComments(task?.id);
   const { logs, deliverables, totalMinutes, refetch: refetchWorkLog } =
     useWorkLog(task?.id);
+
+  const pm = findPM(members);
+  const canSendToPM =
+    task &&
+    task.status === "Backlog" &&
+    task.assignee_id === user?.id &&
+    pm &&
+    pm.id !== user?.id;
 
   // Sync local form state whenever the selected task changes.
   useEffect(() => {
@@ -72,6 +82,18 @@ export function Drawer() {
       showToast(e.message, true);
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleSendToPM = async (note) => {
+    try {
+      await updateTask(task.id, { assignee_id: pm.id });
+      await addComment(
+        `Sent back to ${pm.name} — needs more info` + (note ? `: ${note}` : "")
+      );
+      setShowSendToPM(false);
+    } catch (e) {
+      showToast(e.message, true);
     }
   };
 
@@ -186,6 +208,26 @@ export function Drawer() {
               />
             </div>
 
+            {canSendToPM && (
+              <div
+                role="button"
+                style={{
+                  color: "var(--growth)",
+                  background: "#fef3c7",
+                  borderRadius: 6,
+                  padding: "6px 10px",
+                  marginBottom: 14,
+                  display: "inline-block",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+                onClick={() => setShowSendToPM(true)}
+              >
+                ⚠ Needs info — send back to {pm.name}
+              </div>
+            )}
+
             <textarea
               className="notes"
               value={notes}
@@ -294,6 +336,13 @@ export function Drawer() {
         busy={deleting}
         onConfirm={handleDelete}
         onCancel={() => setConfirmDelete(false)}
+      />
+    )}
+    {task && showSendToPM && pm && (
+      <SendToPMModal
+        pmName={pm.name}
+        onConfirm={handleSendToPM}
+        onCancel={() => setShowSendToPM(false)}
       />
     )}
     </>

@@ -75,3 +75,12 @@ export const commentTime = (iso) =>
     hour: "numeric",
     minute: "2-digit",
   });
+
+/**
+ * The org's PM, used to auto-route tasks (Client Review handoff, "needs
+ * info" send-back). Assumes a single PM per org — with more than one this
+ * just picks the first found; multi-PM routing needs a `created_by` field
+ * on tasks to know which PM to return to, which isn't built yet.
+ */
+export const findPM = (members) =>
+  members.find((m) => m.role === "PM") || null;
