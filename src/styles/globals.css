@@ -1321,6 +1321,24 @@ body {
   flex: 1;
 }
 
+.sidebar-signout {
+  display: none;
+  margin: 10px 18px 4px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+.sidebar-signout:hover {
+  color: var(--alert);
+  border-color: var(--alert);
+}
+
 @media (max-width: 920px) {
   .sidebar {
     display: none;
@@ -1395,23 +1413,6 @@ body {
   }
 }
 
-.sidebar-signout {
-  display: none;
-  margin: 10px 18px 4px;
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--line);
-  background: var(--paper);
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  text-align: center;
-}
-.sidebar-signout:hover {
-  color: var(--alert);
-  border-color: var(--alert);
-}
 @media (prefers-reduced-motion: reduce) {
   .drawer {
     transition: none;
