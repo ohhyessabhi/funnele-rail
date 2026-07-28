@@ -2,17 +2,15 @@ import { useMemo } from "react";
 import useAppStore from "../store/appStore";
 
 /**
- * Computes the visible task list for the current view + filters.
- *
- * Selecting each slice individually (stable references) and deriving with
- * useMemo avoids returning a brand-new array from a Zustand selector on every
- * render, which would trip React's "getSnapshot should be cached" loop.
+ * Tasks scoped to the current view (my-work / all-tasks / project) + search,
+ * but *before* the status chip filter is applied. Exported separately so
+ * ViewHead can compute "how many tasks are in each stage" counts that don't
+ * shrink as you select more status chips.
  */
-export function useVisibleTasks() {
+export function useViewScopedTasks() {
   const tasks = useAppStore((s) => s.tasks);
   const currentView = useAppStore((s) => s.currentView);
   const currentProjectId = useAppStore((s) => s.currentProjectId);
-  const statusFilters = useAppStore((s) => s.statusFilters);
   const searchQuery = useAppStore((s) => s.searchQuery);
   const user = useAppStore((s) => s.user);
   const isAdmin = useAppStore((s) => s.isAdmin);
@@ -28,9 +26,6 @@ export function useVisibleTasks() {
       visible = visible.filter((t) => t.assignee_id === user?.id);
     }
 
-    if (statusFilters.length) {
-      visible = visible.filter((t) => statusFilters.includes(t.status));
-    }
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       visible = visible.filter(
@@ -40,13 +35,23 @@ export function useVisibleTasks() {
       );
     }
     return visible;
-  }, [
-    tasks,
-    currentView,
-    currentProjectId,
-    statusFilters,
-    searchQuery,
-    user,
-    isAdmin,
-  ]);
+  }, [tasks, currentView, currentProjectId, searchQuery, user, isAdmin]);
+}
+
+/**
+ * Computes the visible task list for the current view + filters (search,
+ * then the status chip filter on top of useViewScopedTasks).
+ *
+ * Selecting each slice individually (stable references) and deriving with
+ * useMemo avoids returning a brand-new array from a Zustand selector on every
+ * render, which would trip React's "getSnapshot should be cached" loop.
+ */
+export function useVisibleTasks() {
+  const base = useViewScopedTasks();
+  const statusFilters = useAppStore((s) => s.statusFilters);
+
+  return useMemo(() => {
+    if (!statusFilters.length) return base;
+    return base.filter((t) => statusFilters.includes(t.status));
+  }, [base, statusFilters]);
 }

@@ -2,6 +2,7 @@ import { useState } from "react";
 import useAppStore from "../store/appStore";
 import { ROLE_SHORT } from "../lib/constants";
 import { isClosed } from "../lib/utils";
+import { useVisibleProjects } from "../hooks/useVisibleProjects";
 import { AddClientModal } from "./AddClientModal";
 import { AddMemberModal } from "./AddMemberModal";
 
@@ -21,7 +22,6 @@ export function Sidebar({ onLogout }) {
   const {
     user,
     isAdmin,
-    projects,
     members,
     tasks,
     inbox,
@@ -40,11 +40,7 @@ export function Sidebar({ onLogout }) {
   ).length;
   const allOpen = tasks.filter((t) => !isClosed(t)).length;
 
-  const visibleProjects = projects.filter(
-    (p) =>
-      isAdmin ||
-      tasks.some((t) => t.project_id === p.id && t.assignee_id === user?.id)
-  );
+  const visibleProjects = useVisibleProjects();
 
   const projectCount = (pid) =>
     tasks.filter(
@@ -67,11 +63,13 @@ export function Sidebar({ onLogout }) {
       )}
       <aside className={`sidebar ${mobileNavOpen ? "mobile-open" : ""}`.trim()}>
         <div className="sidebar-section">
-          <NavItem
-            label="Dashboard"
-            active={currentView === "dash"}
-            onClick={() => go("dash")}
-          />
+          {isAdmin && (
+            <NavItem
+              label="Dashboard"
+              active={currentView === "dash"}
+              onClick={() => go("dash")}
+            />
+          )}
           <NavItem
             label="My work"
             active={currentView === "my-work"}

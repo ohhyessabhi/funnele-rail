@@ -34,7 +34,14 @@ export const useAppStore = create(
 
         // ---- Auth actions ----
         setUser: (user) =>
-          set({ user, isAdmin: user?.role === "Admin", loading: false }),
+          set((s) => {
+            const isAdmin = user?.role === "Admin";
+            // Non-admins have no "Dashboard" nav entry — don't strand them
+            // on a page with nothing highlighted in the sidebar.
+            const currentView =
+              !isAdmin && s.currentView === "dash" ? "my-work" : s.currentView;
+            return { user, isAdmin, loading: false, currentView };
+          }),
         setLoading: (loading) => set({ loading }),
         resetForLogout: () =>
           set({

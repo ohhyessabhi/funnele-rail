@@ -5,7 +5,8 @@ import { useMembers } from "./hooks/useMembers";
 import { useProjects } from "./hooks/useProjects";
 import { useInbox } from "./hooks/useInbox";
 import useAppStore from "./store/appStore";
-import { ROLE_SHORT, STATUSES, STATUS_SHORT } from "./lib/constants";
+import { STATUSES } from "./lib/constants";
+import { useViewScopedTasks } from "./hooks/useVisibleTasks";
 
 import { Login } from "./components/Login";
 import { Topbar } from "./components/Topbar";
@@ -32,32 +33,29 @@ const VIEW_TITLES = {
 };
 
 function ViewHead() {
-  const {
-    currentView,
-    currentProjectId,
-    isAdmin,
-    user,
-    statusFilters,
-    toggleStatusFilter,
-  } = useAppStore();
+  const { currentView, currentProjectId, statusFilters, toggleStatusFilter } =
+    useAppStore();
   const projectName = useAppStore((s) => s.projectName);
+  const scopedTasks = useViewScopedTasks();
 
   const title =
     currentView === "project"
       ? projectName(currentProjectId)
       : VIEW_TITLES[currentView] || "Tasks";
-  const roleLabel = user ? " · " + (ROLE_SHORT[user.role] || user.role) : "";
-  const sub = (isAdmin ? "Full visibility" : "Your work only") + roleLabel;
 
   // Status filter chips only make sense on task-list views.
   const showFilters = ["my-work", "all-tasks", "project", "dash"].includes(
     currentView
   );
 
+  const countByStatus = {};
+  scopedTasks.forEach((t) => {
+    countByStatus[t.status] = (countByStatus[t.status] || 0) + 1;
+  });
+
   return (
     <div className="viewhead">
       <h1>{title}</h1>
-      <div className="sub">{sub}</div>
       {showFilters && (
         <div className="toolrow">
           {STATUSES.map((s) => (
@@ -66,7 +64,10 @@ function ViewHead() {
               className={`chip ${statusFilters.includes(s) ? "on" : ""}`}
               onClick={() => toggleStatusFilter(s)}
             >
-              {STATUS_SHORT[s]}
+              {s}
+              {countByStatus[s] ? (
+                <span className="chip-count">{countByStatus[s]}</span>
+              ) : null}
             </button>
           ))}
         </div>

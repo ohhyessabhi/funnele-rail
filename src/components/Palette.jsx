@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import useAppStore from "../store/appStore";
 import { createTask } from "../lib/api";
+import { useVisibleProjects } from "../hooks/useVisibleProjects";
 
 export function Palette() {
   const open = useAppStore((s) => s.paletteOpen);
   const setPaletteOpen = useAppStore((s) => s.setPaletteOpen);
-  const projects = useAppStore((s) => s.projects);
+  const projects = useVisibleProjects();
   const tasks = useAppStore((s) => s.tasks);
   const setView = useAppStore((s) => s.setView);
   const setSelectedTask = useAppStore((s) => s.setSelectedTask);
